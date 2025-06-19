@@ -174,21 +174,21 @@ void PlayerComponent::OnCollision(const CollisionInfo& collisionInfo)
 			++m_MaxBombs;
 			grid->SetTile(tile, TileType::Empty, 0);
 			grid->SetTile(tile, TileType::Floor, 1);
-			ServiceLocator::GetSoundSystem().QueueSound("Resources/Audio/PowerUp.wav");
+			ServiceLocator::GetSoundSystem().QueueSound("../Bomberman/Resources/Audio/PowerUp.wav");
 			break;
 
 		case TileType::PowerUpDetonator:
 			m_HasRemote = true;
 			grid->SetTile(tile, TileType::Empty, 0);
 			grid->SetTile(tile, TileType::Floor, 1);
-			ServiceLocator::GetSoundSystem().QueueSound("Resources/Audio/PowerUp.wav");
+			ServiceLocator::GetSoundSystem().QueueSound("../Bomberman/Resources/Audio/PowerUp.wav");
 			break;
 
 		case TileType::PowerUpFlames:
 			++m_ExplosionRange;
 			grid->SetTile(tile, TileType::Empty, 0);
 			grid->SetTile(tile, TileType::Floor, 1);
-			ServiceLocator::GetSoundSystem().QueueSound("Resources/Audio/PowerUp.wav");
+			ServiceLocator::GetSoundSystem().QueueSound("../Bomberman/Resources/Audio/PowerUp.wav");
 			break;
 
 		case TileType::ExitBlock:

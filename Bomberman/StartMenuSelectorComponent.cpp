@@ -57,6 +57,6 @@ void StartMenuSelectorComponent::UpdateArrowPosition() const
 
 		GetOwner()->SetPosition(newPos.x, newPos.y);
 
-		ServiceLocator::GetSoundSystem().QueueSound("Resources/Audio/MenuMove.wav");
+		ServiceLocator::GetSoundSystem().QueueSound("../Bomberman/Resources/Audio/MenuMove.wav");
 	}
 }

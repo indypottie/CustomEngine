@@ -1,18 +1,43 @@
-# Minigin
+# Bomberman Game Engine Project
 
-Minigin is a very small project using [SDL2](https://www.libsdl.org/) and [glm](https://github.com/g-truc/glm) for 2D c++ game projects. It is in no way a game engine, only a barebone start project where everything sdl related has been set up. It contains glm for vector math, to aleviate the need to write custom vector and matrix classes.
+## Overview
+This project is a custom game engine built in C++ designed specifically for creating a Bomberman-style game. It supports multiple levels, AI enemies, player controls, bomb mechanics, and a HUD system. The engine emphasizes modularity, extensibility, and maintainability to facilitate easy feature additions and game logic enhancements.
 
-[![Build Status](https://github.com/avadae/minigin/actions/workflows/msbuild.yml/badge.svg)](https://github.com/avadae/msbuild/actions)
-[![GitHub Release](https://img.shields.io/github/v/release/avadae/minigin?logo=github&sort=semver)](https://github.com/avadae/minigin/releases/latest)
+## Key Features
+- **Modular Component System:**  
+  Entities in the game are built using a component-based architecture. Components like `ColliderComponent`, `PlayerComponent`, and `EnemyComponent` enable flexible behavior composition and separation of concerns.
 
-# Goal
+- **Grid-Based Level Management:**  
+  Levels are loaded from JSON files describing the tile grid, walkable areas, and spawn points. The grid supports navigation, enemy spawning with constraints, and interaction with game objects like exits and bombs.
 
-Minigin can/may be used as a start project for the exam assignment in the course [Programming 4](https://youtu.be/j96Oh6vzhmg) at DAE. In that assignment students need to recreate a popular 80's arcade game with a game engine they need to program themselves. During the course we discuss several game programming patterns, using the book '[Game Programming Patterns](https://gameprogrammingpatterns.com/)' by [Robert Nystrom](https://github.com/munificent) as reading material. 
+- **Input Handling:**  
+  Supports both keyboard and gamepad input with a command pattern. Commands are bound dynamically to input events for player movement and bomb actions.
 
-# Disclaimer
+- **AI and Enemy Behavior:**  
+  Enemies are spawned at random walkable positions excluding the initial player area. They have simple AI behaviors and are managed centrally by the `LevelManager`.
 
-Minigin is, despite perhaps the suggestion in its name, **not** a game engine. It is just a very simple sdl2 ready project with some of the scaffolding in place to get started. None of the patterns discussed in the course are used yet (except singleton which use we challenge during the course). It is up to the students to implement their own vision for their engine, apply patterns as they see fit, create their game as efficient as possible.
+- **Collision System:**  
+  Uses a `ColliderComponent` to handle collision detection. Colliders update their positions relative to their game object’s world position each frame to ensure accurate collision handling.
 
-# Use
+- **Level Progression:**  
+  The game supports multiple levels (3 total) with logic to advance to the next level once all enemies are defeated and the player drops a bomb on the exit tile. A skip-level feature is implemented for testing or player convenience.
 
-Either download the latest release of this project and compile/run in visual studio or, since students need to have their work on github too, they can use this repository as a template (see the "Use this template" button at the top right corner). There is no point in forking this project.
+- **HUD System:**  
+  Displays score and remaining enemies dynamically, updating based on game events.
+
+## Design Choices
+
+### Component-Based Architecture
+Choosing a component-based design allowed decoupling of functionalities and promoted reusability. This makes it easier to add or modify features without altering the entire entity system.
+
+### Data-Driven Level Loading
+Using JSON files for level data enables easy editing and expansion of game levels without recompiling the engine. The grid system abstracts tile management and world coordinates for seamless interaction.
+
+### Command Pattern for Input
+Implementing the command pattern for input decouples input handling from game logic. This makes it simple to rebind keys or support different input devices with minimal changes.
+
+### Sound and Resource Management
+Sound playback and resource loading are centralized via a Service Locator pattern, which simplifies managing global systems and facilitates swapping implementations if needed.
+
+### Multilevel Management and Progression
+The `LevelManager` handles enemy tracking, player progress, and level transitions, encapsulating game state logic to keep game flow management organized and clear.

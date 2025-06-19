@@ -3,8 +3,6 @@
 //---------------------------
 #include "BombComponent.h"
 
-#include <iostream>
-
 #include "EngineTime.h"
 #include "ExplosionComponent.h"
 #include "GameObject.h"

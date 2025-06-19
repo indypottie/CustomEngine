@@ -2,8 +2,6 @@
 
 #include <fstream>
 #include <iostream>
-#include <SDL_keycode.h>
-#include <nlohmann/json.hpp>
 
 #include "ControllerButtons.h"
 #include "GameCommands.h"
@@ -197,8 +195,8 @@ void LevelManager::LoadSoloGame()
 {
 	std::cout << "SOLO GAME CALLED\n";
 
-	ServiceLocator::GetSoundSystem().StopSound("Resources/Audio/TitleScreen.wav");
-	ServiceLocator::GetSoundSystem().QueueSound("Resources/Audio/BombermanLevelMusic.ogg", -1);
+	ServiceLocator::GetSoundSystem().StopSound("../Bomberman/Resources/Audio/TitleScreen.wav");
+	ServiceLocator::GetSoundSystem().QueueSound("../Bomberman/Resources/Audio/BombermanLevelMusic.ogg", -1);
 
 	LoadLevelFromFile("../Data/Level1.json");
 }
@@ -287,8 +285,8 @@ void LevelManager::LoadCoOpGame()
 	scene->Add(std::move(p1));
 	scene->Add(std::move(p2));
 
-	ServiceLocator::GetSoundSystem().StopSound("Resources/Audio/TitleScreen.wav");
-	ServiceLocator::GetSoundSystem().QueueSound("Resources/Audio/BombermanLevelMusic.ogg", -1);
+	ServiceLocator::GetSoundSystem().StopSound("../Bomberman/Resources/Audio/TitleScreen.wav");
+	ServiceLocator::GetSoundSystem().QueueSound("../Bomberman/Resources/Audio/BombermanLevelMusic.ogg", -1);
 
 	input.BindKeyboardCommand(SDLK_F2, keyState::released, std::make_unique<LambdaCommand>([] {GameOptions::GetInstance().ToggleMute(); }));
 	input.BindKeyboardCommand(SDLK_F1, keyState::released, std::make_unique<LambdaCommand>([] {GameOptions::GetInstance().SkipLevel(); }));
@@ -380,8 +378,8 @@ void LevelManager::LoadVersusGame()
 	scene->Add(std::move(balloom));
 
 	// Start music or other setup
-	ServiceLocator::GetSoundSystem().StopSound("Resources/Audio/TitleScreen.wav");
-	ServiceLocator::GetSoundSystem().QueueSound("Resources/Audio/BombermanLevelMusic.ogg", -1);
+	ServiceLocator::GetSoundSystem().StopSound("../Bomberman/Resources/Audio/TitleScreen.wav");
+	ServiceLocator::GetSoundSystem().QueueSound("../Bomberman/Resources/Audio/BombermanLevelMusic.ogg", -1);
 
 	input.BindKeyboardCommand(SDLK_F2, keyState::released, std::make_unique<LambdaCommand>([] {GameOptions::GetInstance().ToggleMute(); }));
 	input.BindKeyboardCommand(SDLK_F1, keyState::released, std::make_unique<LambdaCommand>([] {GameOptions::GetInstance().SkipLevel(); }));
@@ -427,7 +425,7 @@ void LevelManager::EndGame()
 	auto scene = dae::SceneManager::GetInstance().GetActiveScene();
 	scene->RemoveAll();
 
-	ServiceLocator::GetSoundSystem().StopSound("Resources/Audio/BombermanLevelMusic.ogg");
+	ServiceLocator::GetSoundSystem().StopSound("../Bomberman/Resources/Audio/BombermanLevelMusic.ogg");
 	ServiceLocator::GetCollisionSystem().ClearColliders();
 	SDL_RenderClear(dae::Renderer::GetInstance().GetSDLRenderer());
 

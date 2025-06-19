@@ -7,8 +7,12 @@
 #include <SDL_pixels.h>
 #include <string>
 #include "Component.h"
-#include "Font.h"
 #include "Texture2D.h"
+
+namespace dae
+{
+	class Font;
+}
 
 //-----------------------------------------------------
 // TextComponent Class									 

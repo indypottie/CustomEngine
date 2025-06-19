@@ -131,7 +131,7 @@ void BombermanMoveCommand::Move(float dx, float dy) const
 
 	if (m_StepCooldown <= 0.f)
 	{
-		ServiceLocator::GetSoundSystem().QueueSound("Resources/Audio/BombermanStep.wav");
+		ServiceLocator::GetSoundSystem().QueueSound("../Bomberman/Resources/Audio/BombermanStep.wav");
 		m_StepCooldown = STEP_INTERVAL;
 	}
 }

@@ -1,4 +1,5 @@
 ﻿#pragma once
+
 #include <vec2.hpp>
 
 #include "Singleton.h"

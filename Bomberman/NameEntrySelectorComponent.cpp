@@ -1,10 +1,7 @@
 ﻿#include"NameEntrySelectorComponent.h"
 
 
-#include <__msvc_ostream.hpp>
-
 #include "GameObject.h"
-#include "InputManager.h"
 #include "LevelManager.h"
 #include "TextComponent.h"
 

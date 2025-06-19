@@ -66,7 +66,7 @@ private:
     void LoadLevelFromFile(const std::string& levelFile);
 
     std::vector<HighScoreEntry> m_Scores;
-    const std::string m_SaveFile = "Resources/highscores.txt";
+    const std::string m_SaveFile = "../Bomberman/Resources/highscores.txt";
     static constexpr size_t MaxScores = 10;
 
 

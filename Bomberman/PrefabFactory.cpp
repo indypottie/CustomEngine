@@ -213,7 +213,7 @@ void Prefab::CreateStartMenu(dae::Scene& scene)
 	input.BindKeyboardCommand(SDLK_F2, keyState::released, std::make_unique<LambdaCommand>([] {GameOptions::GetInstance().ToggleMute(); }));
 	input.BindKeyboardCommand(SDLK_F1, keyState::released, std::make_unique<LambdaCommand>([] {GameOptions::GetInstance().SkipLevel(); }));
 
-	ServiceLocator::GetSoundSystem().QueueSound("Resources/Audio/TitleScreen.wav", -1);
+	ServiceLocator::GetSoundSystem().QueueSound("../Bomberman/Resources/Audio/TitleScreen.wav", -1);
 }
 
 void Prefab::CreateEndScreen(dae::Scene& scene, int scoreToSave)

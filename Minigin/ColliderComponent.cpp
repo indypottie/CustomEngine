@@ -3,8 +3,6 @@
 //---------------------------
 #include "ColliderComponent.h"
 
-#include <iostream>
-
 #include "CollisionSystem.h"
 #include "GameObject.h"
 #include "Renderer.h"

@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include <memory>
 #include <optional>
 #include <SDL_rect.h>
 #include <string>

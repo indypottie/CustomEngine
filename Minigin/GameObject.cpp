@@ -1,6 +1,5 @@
 #include "GameObject.h"
 
-#include <iostream>
 #include <ranges>
 
 #include "ColliderComponent.h"

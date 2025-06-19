@@ -1,7 +1,6 @@
 ﻿#include "States.h"
 
 #include <geometric.hpp>
-#include <iostream>
 #include <random>
 
 #include "EnemyComponent.h"
