@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <SDL.h>
 #include <unordered_map>
 
 #include "Command.h"
@@ -26,6 +27,8 @@ namespace dae
 		void BindControllerCommand(int controllerIndex, ControllerButton button, keyState state, std::unique_ptr<Command> command);
 		void BindKeyboardCommand(SDL_Keycode key, keyState state, std::unique_ptr<Command> command);
 
+		void ClearCommands();
+
 	private:
 
 		std::unordered_map<int, std::unordered_map<ControllerButton, std::unique_ptr<Command>>> m_ControllerCommandsDown;
@@ -41,6 +44,8 @@ namespace dae
 
 		const Uint8* m_CurrentKeyState = nullptr;
 		Uint8 m_PreviousKeyState[SDL_NUM_SCANCODES]{};
+
+		bool m_Cleared{ false };
 	};
 
 }

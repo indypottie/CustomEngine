@@ -9,11 +9,11 @@
 //-----------------------------------------------------
 // SoundSystem Class									 
 //-----------------------------------------------------
-class SoundSystem final
+class SoundSystem
 {
 public:
 	SoundSystem(); // Constructor
-	~SoundSystem(); // Destructor
+	virtual ~SoundSystem(); // Destructor
 
 	SoundSystem(SoundSystem&&) noexcept;
 	SoundSystem& operator=(SoundSystem&&) noexcept;
@@ -22,7 +22,12 @@ public:
 	// Member functions						
 	//-------------------------------------------------
 
-	void QueueSound(const std::string& soundFile);
+	// if loops is -1 sound will loop "infinitely", 0 = no loops
+	virtual void QueueSound(const std::string& soundFile, int loops = 0);
+
+	virtual void StopSound(const std::string& soundFile);
+
+	virtual void Mute(bool mute);
 
 private:
 	//-------------------------------------------------
@@ -31,4 +36,16 @@ private:
 
 	class SoundSystemImpl;
 	std::unique_ptr<SoundSystemImpl> m_Impl;
+};
+
+// null sound system class
+class NullSoundSystem final : public SoundSystem
+{
+public:
+	NullSoundSystem() = default;
+	~NullSoundSystem() override = default;
+
+	void QueueSound(const std::string& /*soundFile*/, int /*loops*/) override {}
+	void StopSound(const std::string& /*soundFile*/) override {}
+	void Mute(bool /*mute*/) override {}
 };

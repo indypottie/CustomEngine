@@ -29,9 +29,19 @@ void SpriteAnimatorComponent::Update()
 {
 	float deltaTime = EngineTime::GetInstance().GetDeltaTime();
 
-	if (!m_IsPlaying || !m_Animations.contains(m_CurrentAnimation)) return;
 
+	if (!m_Animations.contains(m_CurrentAnimation)) return;
 	auto& anim = m_Animations[m_CurrentAnimation];
+
+	if (m_AnimationFinished && anim.destroyAfterAnimation)
+	{
+		MarkForDeletion();
+		GetOwner()->MarkForDeletion();
+		return;
+	}
+
+	if (!m_IsPlaying) return;
+
 	m_ElapsedTime += deltaTime;
 
 	if (m_ElapsedTime >= anim.frameTime)
@@ -47,6 +57,7 @@ void SpriteAnimatorComponent::Update()
 			{
 				m_CurrentFrame = static_cast<int>(anim.frames.size()) - 1;
 				m_IsPlaying = false;
+				m_AnimationFinished = true;
 			}
 		}
 
@@ -69,6 +80,7 @@ void SpriteAnimatorComponent::Play(const std::string& name)
 		m_CurrentFrame = 0;
 		m_ElapsedTime = 0.f;
 		m_IsPlaying = true;
+		m_AnimationFinished = false;
 		ApplyFrame(m_Animations[name].frames[0]);
 	}
 }
@@ -76,6 +88,7 @@ void SpriteAnimatorComponent::Play(const std::string& name)
 void SpriteAnimatorComponent::Stop()
 {
 	m_IsPlaying = false;
+	m_AnimationFinished = false;
 	m_CurrentFrame = 0;
 	m_ElapsedTime = 0.f;
 
@@ -96,6 +109,11 @@ void SpriteAnimatorComponent::SetDefaultFrame(const glm::ivec2& frame)
 
 	if (!m_IsPlaying)
 		ApplyFrame(m_DefaultFrame);
+}
+
+bool SpriteAnimatorComponent::IsAnimationFinished() const
+{
+	return m_AnimationFinished;
 }
 
 void SpriteAnimatorComponent::ApplyFrame(const glm::ivec2& framePos)

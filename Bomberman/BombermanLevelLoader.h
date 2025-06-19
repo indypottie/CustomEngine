@@ -14,5 +14,5 @@ class GridComponent;
 class BombermanLevelLoader final
 {
 public:
-	static bool LoadLevelFromFile(const std::string& filePath, GridComponent& grid);
+	static bool LoadLevelFromFile(const std::string& filePath, GridComponent& environmentGrid);
 };

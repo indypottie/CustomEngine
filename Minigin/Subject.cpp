@@ -24,6 +24,7 @@ void Subject::NotifyObservers(const Event& event, dae::GameObject* actor)
 {
 	for (auto* observer : m_Observers)
 	{
+		if (observer)
 		observer->Notify(event, actor);
 	}
 }

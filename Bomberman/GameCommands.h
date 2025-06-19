@@ -3,40 +3,44 @@
 #pragma once
 #include <iostream>
 
+#include "CollisionInfo.h"
 #include "Command.h"
 #include "EngineCommands.h"
 #include "GameObjectCommand.h"
 
 
+class PlayerComponent;
 
-class TakeDamage final : public GameObjectCommand
+// player action command
+class BombermanDropBombCommand final : public GameObjectCommand
 {
 public:
-	explicit TakeDamage(dae::GameObject& gameObject) : GameObjectCommand(gameObject) {}
-
-	void Execute() override;
-};
-
-
-// temp command to play sound for testing the sound system
-class PlaySoundCommand final : public Command
-{
-public:
-	explicit PlaySoundCommand(std::string soundFile) : m_SoundFile(std::move(soundFile)) {}
+	BombermanDropBombCommand(dae::GameObject& gameObject);
 
 	void Execute() override;
 
 private:
-	std::string m_SoundFile;
+
+	PlayerComponent* m_PlayerComponentPtr{ nullptr };
 };
 
+class BombermanDetonateBombCommand final : public GameObjectCommand
+{
+public:
+	BombermanDetonateBombCommand(dae::GameObject& gameObject);
 
+	void Execute() override;
+
+private:
+
+	PlayerComponent* m_PlayerComponentPtr{ nullptr };
+};
 
 // movement command
 class BombermanMoveCommand final : public GameObjectCommand
 {
 public:
-	BombermanMoveCommand(dae::GameObject& gameObject, Direction direction, int playerIndex) : GameObjectCommand(gameObject), m_Direction(direction), m_PlayerIndex(playerIndex) {}
+	BombermanMoveCommand(dae::GameObject& gameObject, Direction direction, int playerIndex);
 
 	void Execute() override;
 
@@ -45,10 +49,10 @@ public:
 
 private:
 
-	void MoveUp() const;
-	void MoveDown() const;
-	void MoveLeft() const;
-	void MoveRight() const;
+	void MoveUp(float deltaTime) const;
+	void MoveDown(float deltaTime) const;
+	void MoveLeft(float deltaTime) const;
+	void MoveRight(float deltaTime) const;
 
 	void StopMovement() const;
 
@@ -59,7 +63,13 @@ private:
 
 	Direction m_Direction;
 
-	float m_Speed{ 1.5f };
+	float m_Speed{ 150.f };
 
 	int m_PlayerIndex{ -1 };
+
+	PlayerComponent* m_PlayerComponentPtr{ nullptr };
+	CollisionInfo m_LatestCollisionInfo{};
+
+	mutable float m_StepCooldown{ 0.f };
+	static constexpr float STEP_INTERVAL{ 0.3f }; // Play footstep every 0.3s
 };

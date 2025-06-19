@@ -1,6 +1,7 @@
 #include <stdexcept>
 #include "Renderer.h"
 #include "SceneManager.h"
+#include "ServiceLocator.h"
 #include "Texture2D.h"
 
 int GetOpenGLDriverIndex()
@@ -20,7 +21,7 @@ int GetOpenGLDriverIndex()
 void dae::Renderer::Init(SDL_Window* window)
 {
 	m_window = window;
-	m_renderer = SDL_CreateRenderer(window, GetOpenGLDriverIndex(), SDL_RENDERER_ACCELERATED);
+	m_renderer = SDL_CreateRenderer(window, GetOpenGLDriverIndex(), SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	if (m_renderer == nullptr) 
 	{
 		throw std::runtime_error(std::string("SDL_CreateRenderer Error: ") + SDL_GetError());
@@ -34,7 +35,9 @@ void dae::Renderer::Render() const
 	SDL_RenderClear(m_renderer);
 
 	SceneManager::GetInstance().Render();
-	
+
+	ServiceLocator::GetCollisionSystem().DebugRender();
+
 	SDL_RenderPresent(m_renderer);
 }
 

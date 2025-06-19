@@ -68,8 +68,8 @@ dae::Minigin::Minigin(const std::string& dataPath)
 		"Programming 4 assignment",
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
-		992, // original 640 // bomberman base bg: 528
-		416, // original 480 // bomberman base bg: 256
+		992, // original 640 // bomberman base bg: 992
+		500, // original 480 // bomberman base bg: 416
 		SDL_WINDOW_OPENGL
 	);
 	if (g_window == nullptr)
@@ -77,7 +77,8 @@ dae::Minigin::Minigin(const std::string& dataPath)
 		throw std::runtime_error(std::string("SDL_CreateWindow Error: ") + SDL_GetError());
 	}
 
-	ServiceLocator::GetInstance().Init();
+	ServiceLocator::RegisterSoundSystem(std::make_unique<SoundSystem>());
+	ServiceLocator::RegisterCollisionSystem(std::make_unique<CollisionSystem>());
 
 	Renderer::GetInstance().Init(g_window);
 
@@ -101,9 +102,9 @@ void dae::Minigin::Run(const std::function<void()>& load)
 	auto& sceneManager = SceneManager::GetInstance();
 	auto& input = InputManager::GetInstance();
 	auto& time = EngineTime::GetInstance();
+	auto& collisionSystem = ServiceLocator::GetCollisionSystem();
 
 	bool doContinue = true;
-	auto lastTime = std::chrono::high_resolution_clock::now();
 	float lag = 0.0f;
 
 
@@ -127,20 +128,8 @@ void dae::Minigin::Run(const std::function<void()>& load)
 
 		// update game logic
 		sceneManager.Update();
+		collisionSystem.Update();
 		renderer.Render();
-
-		// calculate sleep time
-		auto currentTime = std::chrono::high_resolution_clock::now();
-		auto frameDuration = std::chrono::milliseconds(16); // 60 FPS cap (16.67 ms)
-		auto sleepTime = frameDuration - std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastTime);
-
-		// sleep for the remaining time
-		if (sleepTime > std::chrono::milliseconds(0))
-		{
-			std::this_thread::sleep_for(sleepTime);
-		}
-
-		lastTime = std::chrono::high_resolution_clock::now();
 	}
 }
 

@@ -41,34 +41,61 @@ public:
 		Mix_CloseAudio(); // Close audio device
 	}
 
-	void QueueSound(const std::string& soundFile)
+	void Mute(bool mute)
+	{
+		if (mute)
+		{
+			Mix_MasterVolume(0);
+		}
+		else
+		{
+			Mix_MasterVolume(MIX_MAX_VOLUME);
+		}
+	}
+
+	void QueueSound(const std::string& soundFile, int loops)
 	{
 		{
 			std::lock_guard<std::mutex> lock(m_Mutex);
-			m_SoundQueue.push(soundFile);
-			std::cout << "Sound added to queue, queue size: " << m_SoundQueue.size() << '\n';
+			{
+				m_SoundQueue.emplace(soundFile, loops);
+			}
+			//std::cout << "Sound added to queue, queue size: " << m_SoundQueue.size() << '\n';
 		}
 		m_Condition.notify_one();
+	}
+
+	void StopSound(const std::string& soundFile)
+	{
+		std::lock_guard lock(m_Mutex);
+
+		auto it = m_SoundChannels.find(soundFile);
+		if (it != m_SoundChannels.end())
+		{
+			int channel = it->second;
+			Mix_HaltChannel(channel);
+			m_SoundChannels.erase(it);
+		}
 	}
 
 private:
 	void ProcessQueue(const std::stop_token& stopToken)
 	{
-		std::cout << "[SoundSystem] Entered ProcessQueue\n";
+		//std::cout << "[SoundSystem] Entered ProcessQueue\n";
 		while (!stopToken.stop_requested())
 		{
 			std::unique_lock lock(m_Mutex);
-			std::cout << "[SoundSystem] Waiting on condition...\n";
+			//std::cout << "[SoundSystem] Waiting on condition...\n";
 
 			m_Condition.wait(lock, stopToken, [this] {
-				std::cout << "[SoundSystem] In predicate check\n";
+				//std::cout << "[SoundSystem] In predicate check\n";
 				return !m_SoundQueue.empty();
 				});
 
 			if (stopToken.stop_requested())
 				break;
 
-			std::cout << "[SoundSystem] Woke up!\n";
+			//std::cout << "[SoundSystem] Woke up!\n";
 
 			while (!m_SoundQueue.empty())
 			{
@@ -76,23 +103,31 @@ private:
 				m_SoundQueue.pop();
 				lock.unlock();
 
-				PlaySound(soundFile);
+				PlaySound(soundFile.first, soundFile.second);
 
 				lock.lock();
 			}
 		}
-		std::cout << "[SoundSystem] Exiting ProcessQueue\n";
+		//std::cout << "[SoundSystem] Exiting ProcessQueue\n";
 	}
 
-	void PlaySound(const std::string& soundFile)
+	void PlaySound(const std::string& soundFile, int loops)
 	{
 		if (!m_SoundCache.contains(soundFile))
 			LoadSound(soundFile);
 
 		Mix_Chunk* chunk = m_SoundCache[soundFile];
 		if (chunk)
-			Mix_PlayChannel(-1, chunk, 0);
+		{
+			int channel = Mix_PlayChannel(-1, chunk, loops);
+			if (channel != -1)
+			{
+				std::lock_guard lock(m_Mutex);
+				m_SoundChannels[soundFile] = channel;
+			}
+		}
 	}
+
 
 	void LoadSound(const std::string& soundFile)
 	{
@@ -117,12 +152,14 @@ private:
 		m_SoundCache.clear();
 	}
 
-	std::queue<std::string> m_SoundQueue;
+	std::queue<std::pair<std::string, int>> m_SoundQueue;
 	std::mutex m_Mutex;
 	std::condition_variable_any m_Condition;
 	std::jthread m_Worker;
 
 	std::unordered_map<std::string, Mix_Chunk*> m_SoundCache;
+
+	std::unordered_map<std::string, int> m_SoundChannels;
 };
 
 
@@ -142,7 +179,17 @@ SoundSystem& SoundSystem::operator=(SoundSystem&&) noexcept = default;
 
 
 
-void SoundSystem::QueueSound(const std::string& soundFile)
+void SoundSystem::QueueSound(const std::string& soundFile, int loops)
 {
-	m_Impl->QueueSound(soundFile);
+	m_Impl->QueueSound(soundFile, loops);
+}
+
+void SoundSystem::StopSound(const std::string& soundFile)
+{
+	m_Impl->StopSound(soundFile);
+}
+
+void SoundSystem::Mute(bool mute)
+{
+	m_Impl->Mute(mute);
 }

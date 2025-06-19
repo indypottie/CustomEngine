@@ -40,6 +40,8 @@ void TextureComponent::ClearSourceRect()
 
 void TextureComponent::Render() const
 {
+	if (!m_Visible) return;
+
 	auto owner = GetOwner();
 
 	if (owner and m_Texture)

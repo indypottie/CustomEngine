@@ -34,16 +34,22 @@ public:
 	//-------------------------------------------------
 	void SetTexture(const std::string& fileName);
 
-	void SetSourceRect(const SDL_Rect& srcRect); // <-- NEW
-	void ClearSourceRect();                      // <-- Optional: revert to full texture
+	void SetSourceRect(const SDL_Rect& srcRect); 
+	void ClearSourceRect();                      
 
 	void Render() const override;
+
+	bool IsVisible() const { return m_Visible; }
+	void SetVisible(bool visible) { m_Visible = visible; }
 
 private:
 
 	//-------------------------------------------------
 	// Datamembers								
 	//-------------------------------------------------
+
+	bool m_Visible{ true };
+
 	dae::Texture2D* m_Texture{};
 	std::optional<SDL_Rect> m_SourceRect{};
 };

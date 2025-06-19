@@ -1,7 +1,10 @@
 ﻿#pragma once
+#include "CollisionInfo.h"
 #include "Component.h"
-#include "States.h"
+#include "ICollisionResponder.h"
+#include "Observer.h"
 #include "StateMachine.h"
+#include "States.h"
 
 //-----------------------------------------------------
 // Include Files
@@ -18,11 +21,11 @@ enum class EnemyType
 //-----------------------------------------------------
 // EnemyComponent Class									 
 //-----------------------------------------------------
-class EnemyComponent final : public Component
+class EnemyComponent final : public Component, public ICollisionResponder , public Observer
 {
 public:
 	EnemyComponent(dae::GameObject& owner, EnemyType enemyType); // Constructor
-	~EnemyComponent() override = default; // Destructor
+	~EnemyComponent() override; // Destructor
 
 	// -------------------------
 	// Copy/move constructors and assignment operators
@@ -38,8 +41,6 @@ public:
 
 	void Update() override;
 
-	void OnDeath();
-
 	EnemyType GetType() const { return m_Type; }
 	float GetSpeed() const { return m_Speed; }
 
@@ -50,6 +51,11 @@ public:
 	bool SeesPlayer() const { return m_SeesPlayer; }
 
 	dae::GameObject* GetPlayer() const { return m_PlayerPtr; }
+
+	void Notify(const Event& event, dae::GameObject* actor) override;
+	void OnCollision(const CollisionInfo& collisionInfo) override;
+
+	CollisionInfo GetLatestCollisionInfo() const { return m_LatestCollisionInfo; }
 
 private:
 	//-------------------------------------------------
@@ -66,9 +72,13 @@ private:
 	EnemyType m_Type;
 	float m_Speed;
 
+	int m_PointsOnDeath;
+
 	bool m_SeesPlayer{ false };
 
 	std::unique_ptr<StateMachine<dae::GameObject, IEnemyState>> m_EnemyStateMachinePtr;
 
 	dae::GameObject* m_PlayerPtr{ nullptr };
+
+	CollisionInfo m_LatestCollisionInfo;
 };

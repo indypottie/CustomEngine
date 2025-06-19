@@ -25,8 +25,7 @@ void Component::Render() const
 
 dae::GameObject* Component::GetOwner() const
 {
-	if (m_OwnerPtr != nullptr) return m_OwnerPtr;
-
+	if (m_OwnerPtr) return m_OwnerPtr;
 	return nullptr;
 }
 

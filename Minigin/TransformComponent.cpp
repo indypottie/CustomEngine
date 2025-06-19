@@ -16,13 +16,13 @@ TransformComponent::TransformComponent(dae::GameObject& owner) : Component(owner
 // Member functions
 //---------------------------
 
-void TransformComponent::SetLocalPosition(const glm::vec3& pos)
+void TransformComponent::SetLocalPosition(const glm::vec2& pos)
 {
 	m_LocalPosition = pos;
 	MarkDirty();
 }
 
-void TransformComponent::SetWorldPosition(const glm::vec3& pos)
+void TransformComponent::SetWorldPosition(const glm::vec2& pos)
 {
 	m_WorldPosition = pos;
 	m_LocalPosition = m_WorldPosition; // if no parent, local = world
@@ -43,7 +43,7 @@ void TransformComponent::MarkDirty()
 	}
 }
 
-const glm::vec3& TransformComponent::GetWorldPosition()
+const glm::vec2& TransformComponent::GetWorldPosition()
 {
 	if (m_IsDirty)
 	{

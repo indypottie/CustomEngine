@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <vec3.hpp>
 
+#include "CollisionInfo.h"
 #include "Component.h"
 
 class TransformComponent;
@@ -30,10 +31,10 @@ namespace dae
 		void Render() const;
 
 		void SetPosition(float x, float y) const;
-		glm::vec3 GetPosition() const;
+		glm::vec2 GetPosition() const;
 
 		void SetTag(const std::string& tag) { m_Tag = tag; }
-		const std::string& GetTag() const { return m_Tag; }
+		std::string GetTag() const { return m_Tag; }
 
 
 		// scene graph methods
@@ -44,6 +45,13 @@ namespace dae
 
 		int GetChildCount() const;
 		GameObject* GetChildAt(size_t index) const;
+
+		void SetRenderLayer(int layer) { m_RenderLayer = layer; }
+		int GetRenderLayer() const { return m_RenderLayer; }
+
+		// collision
+		void HandleCollision(const CollisionInfo& collisionInfo);
+
 
 
 		template<typename T, typename... Args>
@@ -58,13 +66,13 @@ namespace dae
 		template<typename T>
 		bool HasComponent() const;
 
-		void MarkForDeletion() { m_IsMarkedForDeletion = true; }
-		bool IsMarkedForDeletion() const { return m_IsMarkedForDeletion; }
+		void MarkForDeletion();
+		bool IsMarkedForDeletion() const;
 
 		void CleanupComponents(); // Remove only marked components
 
-
 	private:
+
 		// private methods
 		void RemoveChild(GameObject* child);
 		void AddChild(GameObject* child);
@@ -79,7 +87,9 @@ namespace dae
 		GameObject* m_ParentPtr{ nullptr };
 		std::vector<GameObject*> m_ChildrenPtrs;
 
-		std::string m_Tag{};
+		std::string m_Tag{ "Default" };
+
+		int m_RenderLayer = 5; // 5 to leave room for other object that want to be in the background
 	};
 
 

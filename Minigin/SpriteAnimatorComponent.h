@@ -18,6 +18,8 @@ struct Animation
 	std::vector<glm::ivec2> frames; // vector of frames
 	float frameTime = 0.1f; // time per frame
 	bool looping = true; // whether the animation loops
+
+	bool destroyAfterAnimation = false; // whether the gameObject will be destroyed after this animation is done playing
 };
 
 //-----------------------------------------------------
@@ -48,6 +50,8 @@ public:
 
 	void SetDefaultFrame(const glm::ivec2& frame);
 
+	bool IsAnimationFinished() const;
+
 private:
 	//-------------------------------------------------
 	// Private member functions								
@@ -68,6 +72,7 @@ private:
 
 	float m_ElapsedTime = 0.f; // elapsed time since last frame
 	bool m_IsPlaying = false; // whether the animation is playing
+	bool m_AnimationFinished = false;
 
 	glm::ivec2 m_DefaultFrame;
 	bool m_HasDefaultFrame = false;

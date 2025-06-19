@@ -28,10 +28,12 @@ public:
 
 private:
 
-    void MoveUp() const;
-	void MoveDown() const;
-	void MoveLeft() const;
-	void MoveRight() const;
+    void MoveUp(float deltaTime) const;
+    void MoveDown(float deltaTime) const;
+	void MoveLeft(float deltaTime) const;
+	void MoveRight(float deltaTime) const;
+
+    void Move(float dx, float dy) const;
 
     Direction m_Direction;
 

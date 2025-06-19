@@ -29,9 +29,12 @@ public:
 	void MarkForDeletion() { m_IsMarkedForDeletion = true; }
 	bool IsMarkedForDeletion() const { return m_IsMarkedForDeletion; }
 
+	dae::GameObject* GetOwner() const;
+
+	virtual int GetRenderPriority() const { return 5; } // base layer is 5 (leaves room for components that want to be drawn at lower layers like backgrounds)
+
 protected:
 	explicit Component(dae::GameObject& owner); // owner is set at creation and cannot be changed
-	dae::GameObject* GetOwner() const;
 
 private:
 	//-------------------------------------------------

@@ -13,13 +13,13 @@
 //---------------------------
 // Constructor
 //---------------------------
-TextComponent::TextComponent(dae::GameObject& owner, const std::string& text, dae::Font* font)
-    : Component(owner), m_NeedsUpdate(true), m_Text(text), m_Font(font), m_TextTexture(nullptr)
+TextComponent::TextComponent(dae::GameObject& owner, std::string text, dae::Font* font, SDL_Color color)
+	: Component(owner), m_NeedsUpdate(true), m_Text(std::move(text)), m_Font(font), m_Color(color), m_TextTexture(nullptr)
 {
-    if (!m_Font)
-    {
-        throw std::runtime_error("Font cannot be null in TextComponent");
-    }
+	if (!m_Font)
+	{
+		throw std::runtime_error("Font cannot be null in TextComponent");
+	}
 }
 
 //---------------------------
@@ -30,8 +30,7 @@ void TextComponent::Update()
 {
     if (m_NeedsUpdate)
     {
-        const SDL_Color color = { 255, 255, 255, 255 }; // Only white text is supported now
-        SDL_Surface* surf = TTF_RenderText_Blended(m_Font->GetFont(), m_Text.c_str(), color);
+        SDL_Surface* surf = TTF_RenderText_Blended(m_Font->GetFont(), m_Text.c_str(), m_Color);
         if (!surf)
         {
             throw std::runtime_error(std::string("Render text failed: ") + SDL_GetError());

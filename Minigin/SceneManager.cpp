@@ -17,7 +17,7 @@ void dae::SceneManager::Render()
 	}
 }
 
-dae::Scene* dae::SceneManager::GetACtiveScene() const
+dae::Scene* dae::SceneManager::GetActiveScene() const
 {
 	return m_ActiveScenePtr.get();
 }

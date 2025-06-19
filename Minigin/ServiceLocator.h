@@ -2,16 +2,14 @@
 //-----------------------------------------------------
 // Include Files
 //-----------------------------------------------------
-#include <iostream>
-
+#include "CollisionSystem.h"
 #include "SoundSystem.h"
-#include "Singleton.h"
 
 
 //-----------------------------------------------------
 // ServiceLocator Class									 
 //-----------------------------------------------------
-class ServiceLocator final : public dae::Singleton<ServiceLocator>
+class ServiceLocator final
 {
 public:
 
@@ -21,18 +19,21 @@ public:
 	// Member functions						
 	//-------------------------------------------------
 
-	void Init();
-
+	// sound system
 	static SoundSystem& GetSoundSystem();
+	static void RegisterSoundSystem(std::unique_ptr<SoundSystem>&& soundSystem);
+
+	// collision system
+	static CollisionSystem& GetCollisionSystem();
+	static void RegisterCollisionSystem(std::unique_ptr<CollisionSystem>&& collisionSystem);
 
 private:
-	friend class dae::Singleton<ServiceLocator>;
 
-	static void RegisterSoundSystem(std::unique_ptr<SoundSystem> soundSystem);
 
 	//-------------------------------------------------
 	// Datamembers								
 	//-------------------------------------------------
 
-	std::unique_ptr<SoundSystem> m_SoundSystem{ nullptr };
+	static std::unique_ptr<SoundSystem> SL_SoundSystem;
+	static std::unique_ptr<CollisionSystem> SL_CollisionSystem;
 };

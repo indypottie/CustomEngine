@@ -4,6 +4,7 @@
 // Include Files
 //-----------------------------------------------------
 #include <memory>
+#include <SDL_pixels.h>
 #include <string>
 #include "Component.h"
 #include "Font.h"
@@ -15,7 +16,7 @@
 class TextComponent final : public Component
 {
 public:
-    TextComponent(dae::GameObject& owner, const std::string& text, dae::Font* font); // Constructor
+    TextComponent(dae::GameObject& owner, std::string text, dae::Font* font, SDL_Color color = { 255, 255, 255, 255 }); // Constructor
     ~TextComponent() override = default; // Destructor
 
     // -------------------------
@@ -34,6 +35,9 @@ public:
 
     void SetText(const std::string& text);
 
+    void SetColor(const SDL_Color& color) { m_Color = color; }
+    SDL_Color GetColor() const { return m_Color; }
+
 private:
     //-------------------------------------------------
     // Datamembers											
@@ -41,5 +45,6 @@ private:
     bool m_NeedsUpdate;
     std::string m_Text;
     dae::Font* m_Font;            // Raw pointer, managed by ResourceManager
+    SDL_Color m_Color;
     std::unique_ptr<dae::Texture2D> m_TextTexture; // Raw pointer, managed by ResourceManager
 };

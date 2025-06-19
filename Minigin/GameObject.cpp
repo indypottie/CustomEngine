@@ -1,7 +1,10 @@
 #include "GameObject.h"
 
+#include <iostream>
 #include <ranges>
 
+#include "ColliderComponent.h"
+#include "ICollisionResponder.h"
 #include "ResourceManager.h"
 #include "TransformComponent.h"
 
@@ -16,21 +19,35 @@ dae::GameObject::~GameObject() = default;
 
 void dae::GameObject::Update()
 {
-	for (const auto& component : m_Components | std::views::values)
+	for (auto& component : m_Components | std::views::values)
 	{
 		if (!component->IsMarkedForDeletion())
 		{
 			component->Update();
 		}
 	}
+
+	CleanupComponents();
 }
 
 void dae::GameObject::Render() const
 {
-	for (const auto& component : m_Components | std::views::values)
-	{
-		component->Render();
-	}
+	// Gather all components
+	std::vector<Component*> sortedComponents;
+	sortedComponents.reserve(m_Components.size());
+
+	for (const auto& comp : m_Components | std::views::values)
+		sortedComponents.push_back(comp.get());
+
+	// sort by render priority
+	std::ranges::sort(sortedComponents, [](const auto* a, const auto* b)
+		{
+			return a->GetRenderPriority() < b->GetRenderPriority();
+		});
+
+	// Render in sorted order
+	for (const auto* comp : sortedComponents)
+		comp->Render();
 }
 
 void dae::GameObject::SetPosition(float x, float y) const
@@ -40,7 +57,7 @@ void dae::GameObject::SetPosition(float x, float y) const
 	m_TransformComponent->SetLocalPosition(position);
 }
 
-glm::vec3 dae::GameObject::GetPosition() const
+glm::vec2 dae::GameObject::GetPosition() const
 {
 	return m_TransformComponent->GetLocalPosition();
 }
@@ -97,6 +114,18 @@ dae::GameObject* dae::GameObject::GetChildAt(size_t index) const
 	return nullptr; // return nullptr if the index is out of bounds
 }
 
+void dae::GameObject::HandleCollision(const CollisionInfo& collisionInfo)
+{
+	// for all components that implement ICollisionResponder, OnCollision will be called
+	for (auto& component : m_Components | std::views::values)
+	{
+		if (auto* responder = dynamic_cast<ICollisionResponder*>(component.get()))
+		{
+			responder->OnCollision(collisionInfo);
+		}
+	}
+}
+
 void dae::GameObject::RemoveChild(GameObject* child)
 {
 	std::erase(m_ChildrenPtrs, child);
@@ -105,6 +134,16 @@ void dae::GameObject::RemoveChild(GameObject* child)
 void dae::GameObject::AddChild(GameObject* child)
 {
 	m_ChildrenPtrs.emplace_back(child);
+}
+
+void dae::GameObject::MarkForDeletion()
+{
+	m_IsMarkedForDeletion = true;
+}
+
+bool dae::GameObject::IsMarkedForDeletion() const
+{
+	return m_IsMarkedForDeletion;
 }
 
 void dae::GameObject::CleanupComponents()

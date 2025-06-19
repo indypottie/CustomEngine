@@ -10,14 +10,16 @@ namespace dae
 	{
 		friend Scene& SceneManager::CreateScene(const std::string& name);
 	public:
-		void Add(std::unique_ptr<GameObject>& object);
-		void Remove(GameObject* object);
+		void Add(std::unique_ptr<GameObject> object);
+		void Remove(const std::unique_ptr<GameObject>& object);
 		void RemoveAll();
 
 		void Update();
 		void Render() const;
 
 		GameObject* FindObjectByTag(const std::string& tag);
+
+		std::vector<GameObject*> FindObjectsByTag(const std::string& tag);
 
 		~Scene();
 		Scene(const Scene& other) = delete;
@@ -30,8 +32,9 @@ namespace dae
 
 		std::string m_name;
 		std::vector < std::unique_ptr<GameObject>> m_objects{};
+		std::vector < std::unique_ptr<GameObject>> m_objectsToAdd{};
 
-		static unsigned int m_idCounter; 
+		static unsigned int m_idCounter;
 	};
 
 }

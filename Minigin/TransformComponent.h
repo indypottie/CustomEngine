@@ -27,12 +27,12 @@ public:
 	//-------------------------------------------------
 
 	// position setters
-	void SetLocalPosition(const glm::vec3& pos);
-	void SetWorldPosition(const glm::vec3& pos); // used for teleporting objects
+	void SetLocalPosition(const glm::vec2& pos);
+	void SetWorldPosition(const glm::vec2& pos); // used for teleporting objects
 
 	// position getters
-	const glm::vec3& GetLocalPosition() const { return m_LocalPosition; }
-	const glm::vec3& GetWorldPosition(); // Computed if dirty
+	const glm::vec2& GetLocalPosition() const { return m_LocalPosition; }
+	const glm::vec2& GetWorldPosition(); // Computed if dirty
 
 	// mark transform as dirty
 	void MarkDirty();
@@ -46,7 +46,7 @@ private:
 	//-------------------------------------------------
 	// Datamembers								
 	//-------------------------------------------------
-	glm::vec3 m_LocalPosition{};
-	glm::vec3 m_WorldPosition{};
+	glm::vec2 m_LocalPosition{};
+	glm::vec2 m_WorldPosition{};
 	bool m_IsDirty = true; // Used to track updates
 };

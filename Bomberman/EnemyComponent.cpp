@@ -3,8 +3,10 @@
 //---------------------------
 #include "EnemyComponent.h"
 
+#include "ExplosionComponent.h"
 #include "GameObject.h"
 #include "GridComponent.h"
+#include "HudManager.h"
 #include "LevelManager.h"
 #include "Scene.h"
 #include "SceneManager.h"
@@ -14,9 +16,11 @@
 //---------------------------
 EnemyComponent::EnemyComponent(dae::GameObject& owner, EnemyType enemyType) : Component(owner), m_Type(enemyType)
 {
-	m_EnemyStateMachinePtr = std::make_unique<StateMachine<dae::GameObject, IEnemyState>>();
-
 	InitializeEnemy();
+}
+
+EnemyComponent::~EnemyComponent()
+{
 }
 
 
@@ -38,31 +42,18 @@ void EnemyComponent::Update()
 		m_SeesPlayer = true;
 
 		// If not already chasing, switch to chase state
-		if (auto* currentState = dynamic_cast<ChaseState*>(GetCurrentState()))
+		if (dynamic_cast<ChaseState*>(GetCurrentState()))
 		{
 			// Already in chase state, do nothing
 			return;
 		}
-		else
-		{
-			SetState(std::make_unique<ChaseState>());
-		}
+
+		SetState(std::make_unique<ChaseState>(*this));
 	}
 	else
 	{
 		m_SeesPlayer = false;
-
-		// If currently chasing but lost sight, go back to wander state
-		if (auto* currentState = dynamic_cast<ChaseState*>(GetCurrentState()))
-		{
-			SetState(std::make_unique<WanderState>());
-		}
 	}
-}
-
-void EnemyComponent::OnDeath()
-{
-
 }
 
 void EnemyComponent::SetState(std::unique_ptr<IEnemyState> newState)
@@ -70,29 +61,61 @@ void EnemyComponent::SetState(std::unique_ptr<IEnemyState> newState)
     m_EnemyStateMachinePtr->SetState(std::move(newState), *GetOwner());
 }
 
+void EnemyComponent::Notify(const Event& event, dae::GameObject* /*actor*/)
+{
+	if (event.id == make_sdbm_hash("Explosion"))
+	{
+		TileCoords explosionPos{};
+		if (!EventArg::TryGetEventArg(event.args[0], explosionPos)) return;
+
+		const auto& gridPos = LevelManager::GetInstance().GetGrid()->GetTileFromWorldPosition(GetOwner()->GetPosition());
+
+		if (explosionPos == gridPos)
+		{
+			LevelManager::GetInstance().GetExplosionSystem()->RemoveObserver(this);
+			LevelManager::GetInstance().AddPoints(m_PointsOnDeath);
+			HudManager::ShowFloatingPoints(m_PointsOnDeath, GetOwner()->GetPosition());
+			SetState(std::make_unique<DeadState>(*this));
+		}
+	}
+}
+
+void EnemyComponent::OnCollision(const CollisionInfo& collisionInfo)
+{
+	m_LatestCollisionInfo = collisionInfo;
+}
+
 void EnemyComponent::InitializeEnemy()
 {
+	m_EnemyStateMachinePtr = std::make_unique<StateMachine<dae::GameObject, IEnemyState>>();
+
 	switch (m_Type)
 	{
     case EnemyType::Balloom:
         m_Speed = 50.f;
+		m_PointsOnDeath = 100;
         break;
 
     case EnemyType::Oneal:
         m_Speed = 60.f;
+		m_PointsOnDeath = 200;
         break;
 
     case EnemyType::Doll:
-        m_Speed = 75.f;
+        m_Speed = 60.f;
+		m_PointsOnDeath = 400;
         break;
 
     case EnemyType::Minvo:
         m_Speed = 90.f;
+		m_PointsOnDeath = 800;
         break;
 	}
 
+	LevelManager::GetInstance().GetExplosionSystem()->AddObserver(this);
+	LevelManager::GetInstance().AddEnemy(*this);
     // set initial state
-    m_EnemyStateMachinePtr->SetState(std::make_unique<WanderState>(), *GetOwner());
+    m_EnemyStateMachinePtr->SetState(std::make_unique<WanderState>(*this), *GetOwner());
 }
 
 bool EnemyComponent::HasLineOfSightToPlayer()
@@ -102,39 +125,36 @@ bool EnemyComponent::HasLineOfSightToPlayer()
 
 	if (!m_PlayerPtr)
 	{
-		m_PlayerPtr = dae::SceneManager::GetInstance().GetACtiveScene()->FindObjectByTag("Player");
+		m_PlayerPtr = dae::SceneManager::GetInstance().GetActiveScene()->FindObjectByTag("Player");
 		if (!m_PlayerPtr) return false;
 	}
 
-	const float cellSize = grid->GetCellSize();
 	auto obj = GetOwner();
 
-	glm::vec2 enemyPos = obj->GetPosition();
-	glm::vec2 playerPos = m_PlayerPtr->GetPosition();
+	TileCoords enemyCoords = grid->GetTileFromWorldPosition(obj->GetPosition());
+	TileCoords playerCoords = grid->GetTileFromWorldPosition(m_PlayerPtr->GetPosition());
 
-	int enemyRow = static_cast<int>(enemyPos.y / cellSize);
-	int enemyCol = static_cast<int>(enemyPos.x / cellSize);
-	int playerRow = static_cast<int>(playerPos.y / cellSize);
-	int playerCol = static_cast<int>(playerPos.x / cellSize);
-
-	if (enemyRow == playerRow)
+	if (enemyCoords.row == playerCoords.row)
 	{
-		int start = std::min(enemyCol, playerCol);
-		int end = std::max(enemyCol, playerCol);
+		int start = std::min(enemyCoords.col, playerCoords.col);
+		int end = std::max(enemyCoords.col, playerCoords.col);
 		for (int col = start + 1; col < end; ++col)
 		{
-			if (grid->GetTile(enemyRow, col) != TileType::Floor)
+			auto tile = grid->GetTile({ col, enemyCoords.row });
+			if (tile == TileType::IndestructibleWall || tile == TileType::DestructibleWall)
 				return false;
 		}
 		return true;
 	}
-	else if (enemyCol == playerCol)
+
+	if (enemyCoords.col == playerCoords.col)
 	{
-		int start = std::min(enemyRow, playerRow);
-		int end = std::max(enemyRow, playerRow);
+		int start = std::min(enemyCoords.row, playerCoords.row);
+		int end = std::max(enemyCoords.row, playerCoords.row);
 		for (int row = start + 1; row < end; ++row)
 		{
-			if (grid->GetTile(row, enemyCol) != TileType::Floor)
+			auto tile = grid->GetTile({ enemyCoords.col, row });
+			if (tile == TileType::IndestructibleWall || tile == TileType::DestructibleWall)
 				return false;
 		}
 		return true;

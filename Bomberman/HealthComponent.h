@@ -16,7 +16,7 @@
 class HealthComponent final : public Component
 {
 public:
-	HealthComponent(dae::GameObject& owner, int maxHealth = 100); // Constructor
+	HealthComponent(dae::GameObject& owner, int maxHealth = 3); // Constructor
 	~HealthComponent() override = default; // Destructor
 
 	// -------------------------

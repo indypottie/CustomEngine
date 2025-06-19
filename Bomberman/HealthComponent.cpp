@@ -35,18 +35,7 @@ void HealthComponent::SetMaxHealth(int newMaxHealth)
 
 void HealthComponent::TakeDamage(int amount)
 {
-	if (m_CurrentHealth <= 0) return;
-
-	if ((m_CurrentHealth - amount) <= 0)
-	{
-		m_CurrentHealth = 0;
-	}
-	else
-	{
-		m_CurrentHealth -= amount;
-	}
-
-	Event damageEvent(make_sdbm_hash("DamageTaken"), amount);
+	Event damageEvent(make_sdbm_hash("TakeDamage"), amount);
 	m_SubjectPtr->NotifyObservers(damageEvent, GetOwner());
 
 	ServiceLocator::GetSoundSystem().QueueSound(DAMAGE_SOUND);

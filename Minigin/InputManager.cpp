@@ -1,8 +1,7 @@
 #include <SDL.h>
 #include "InputManager.h"
 
-#include <array>
-#include <ext/scalar_uint_sized.hpp>
+#include <ranges>
 
 #include "Command.h"
 #include "Controller.h"
@@ -17,8 +16,6 @@ bool dae::InputManager::ProcessInput()
 		}
 	}
 
-		// Refresh the keyboard state (process the latest input)
-		SDL_PumpEvents();
 		m_CurrentKeyState = SDL_GetKeyboardState(nullptr);
 
 		// Execute commands for key held down (continuously while pressed)
@@ -28,6 +25,8 @@ bool dae::InputManager::ProcessInput()
 			{
 				command->Execute();  // Execute continuously while key is held down
 			}
+
+			if (m_Cleared) break;
 		}
 
 		// Execute commands for key pressed (only the first time it is pressed)
@@ -37,6 +36,8 @@ bool dae::InputManager::ProcessInput()
 			{
 				command->Execute();  // Execute only once when key is pressed down for the first time
 			}
+
+			if (m_Cleared) break;
 		}
 
 		// Execute commands for key released (only when key is released)
@@ -46,6 +47,8 @@ bool dae::InputManager::ProcessInput()
 			{
 				command->Execute();  // Execute only once when key is released
 			}
+
+			if (m_Cleared) break;
 		}
 
 		// Store the current state as the previous state for the next frame
@@ -63,6 +66,8 @@ bool dae::InputManager::ProcessInput()
 			{
 				command->Execute();
 			}
+
+			if (m_Cleared) break;
 		}
 
 		for (const auto& [button, command] : m_ControllerCommandsPressed[index])
@@ -71,6 +76,8 @@ bool dae::InputManager::ProcessInput()
 			{
 				command->Execute();
 			}
+
+			if (m_Cleared) break;
 		}
 
 		for (const auto& [button, command] : m_ControllerCommandsReleased[index])
@@ -79,9 +86,16 @@ bool dae::InputManager::ProcessInput()
 			{
 				command->Execute();
 			}
+
+			if (m_Cleared) break;
+
 		}
 
+		if (m_Cleared) break;
 	}
+
+
+	m_Cleared = false;
 
 	return true;
 }
@@ -124,4 +138,19 @@ void dae::InputManager::BindKeyboardCommand(SDL_Keycode key, keyState state, std
 		m_KeyCommandsReleased[key] = std::move(command);
 		break;
 	}
+}
+
+void dae::InputManager::ClearCommands()
+{
+	m_KeyCommandsDown.clear();
+	m_KeyCommandsPressed.clear();
+	m_KeyCommandsReleased.clear();
+
+	m_ControllerCommandsDown.clear();
+	m_ControllerCommandsPressed.clear();
+	m_ControllerCommandsReleased.clear();
+
+	m_Controllers.clear();
+
+	m_Cleared = true;
 }
